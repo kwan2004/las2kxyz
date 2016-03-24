@@ -150,8 +150,9 @@ public:
 	int width;
 	int level;
 
-	//0~3 for 2d; upper 2|3;
-	//            lower 0|1
+	//one dim, less than middle is 0, bigger than middle is 1
+	//0~3 for 2d; upper 2|3----10|11;-----S0: YX for 2D, ZYX for 3D, TZYX for 4D
+	//            lower 0|1----00|01
 
 	node getchildnode(int idx)
 	{
@@ -189,6 +190,8 @@ public:
 		//intersect
 		///http://stackoverflow.com/questions/306316/determine-if-two-rectangles-overlap-each-other
 		///RectA.Left < RectB.Right && RectA.Right > RectB.Left && RectA.Top > RectB.Bottom && RectA.Bottom < RectB.Top
+		// this can be extended more dimensions
+		//http://stackoverflow.com/questions/5009526/overlapping-cubes
 		if (nrt.x0 < qrt.x1 && nrt.x1 > qrt.x0 && \
 			nrt.y1 > qrt.y0 && nrt.y0 < qrt.y1)
 			return 2;
@@ -300,15 +303,72 @@ int query_approximate(node nd, rect qrt)
 	}
 
 	/////this tree node is divided to get the 4 child nodes
-	/////also to divide the input query rectangle into 2 or 4 parts(ONLY 2 or 4 here!!!)---5 CASES!!!
-	//0~3 for 2d; upper 2|3;
-	//            lower 0|1
+	/////also to divide the input query rectangle into 2 or 4 parts(ONLY 2 or 4 here!!!)
+	//0~3 for 2d; upper 2|3----10|11;----- YX for 2D, ZYX for 3D, TZYX for 4D--each dim one bit
+	//            lower 0|1----00|01 ------one dim: less = 0; greater = 1
+		
+	rect rtcut[2 * 2]; //maximum results 2*dim
+	int rtpos[2 * 2] = { 0 };
+
+	int mid[2]; // middle cut line--dim number
+	mid[0] = nd.x0 + nd.width / 2;
+	mid[1] = nd.y0 + nd.width / 2;	
+
+	int ncount = 1;
+	rtcut[0] = qrt;
+	for (int i = 0; i < 2; i++) //dimension iteration
+	{
+		int newadd = 0;
+		for (int j = 0; j < ncount; j++)
+		{
+			int coord[2][2]; //2D and 2 points
+			coord[0][0] = rtcut[j].x0;  //0 is less, 1 is bigger
+			coord[0][1] = rtcut[j].x1;
+			coord[1][0] = rtcut[j].y0; 
+			coord[1][1] = rtcut[j].y1;
+
+			if (coord[i][0] < mid[i] && coord[i][1] > mid[i]) //true in the middle of this dimension
+			{
+				/////add one rectangle, the new rect is in the bigger area
+				rect rtnew = rtcut[j]; 
+
+				//cut this rectangle along the middle line
+				if (i == 0) //X
+				{
+					rtnew.x0 = mid[i]; //right
+					rtcut[j].x1 = mid[i];//left
+				}
+				if (i == 1) //Y
+				{
+					rtnew.y0 = mid[i]; //upper
+					rtcut[j].y1 = mid[i];//lower
+				}
+
+				rtpos[ncount + newadd] = (1 << i) + rtpos[j]; //--put 1 on the dimension bit
+				rtcut[ncount + newadd] = rtnew;
+				newadd++;
+			}
+	
+			if (coord[i][0] >= mid[i] ) //all bigger than the middle line
+			{
+				rtpos[j] |= 1 << i; //just update its position---put 1 on the dimension bit
+			}	
+		}//end for rect count
+
+		ncount += newadd; //update all rectangle count
+	}//end for dimension
+
+	for (int j = 0; j < ncount; j++) //final rect number 
+	{
+		query_approximate(nchild[rtpos[j]], rtcut[j]);
+	}
+
+	/*
 	rect rt0, rt1, rt2, rt3;
 
 	int midx, midy;
 	midx = nd.x0 + nd.width / 2;
 	midy = nd.y0 + nd.width / 2;
-
 	if (midx > qrt.x0 && midx < qrt.x1) //x dimesion: mid in the qrt center
 	{
 		if (midy > qrt.y0 && midy < qrt.y1) //y dimesion: mid in the qrt center--- 4 parts:0,1,2,3
@@ -363,6 +423,7 @@ int query_approximate(node nd, rect qrt)
 		rt3.set(qrt.x0, midy, qrt.x1, qrt.y1);
 		query_approximate(nchild[3], rt3);
 	}
+	*/
 
 	return 0;
 }
@@ -429,11 +490,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	int x0, x1;
 	int y0, y1;
 
-	x0 = 3; x1 = 5;
-	y0 = 2; y1 = 5;
+	/*x0 = 3; x1 = 5;
+	y0 = 2; y1 = 5;*/
 
-	/*x0 = 2; x1 = 4;
-	y0 = 1; y1 = 2;*/
+	x0 = 2; x1 = 4;
+	y0 = 1; y1 = 2;
 
 	int rows = x1 - x0 + 1;
 	int cols = y1 - y0 + 1;
@@ -517,11 +578,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	root.width = 8;
 
 	rect qrt;
-	qrt.x0 = 3; qrt.x1 = 6; //here,point coordidate is located on lef-bottom of the correspoind cell
-	qrt.y0 = 2; qrt.y1 = 6; //so the right-top coordidate equals cell center + 1
+	//qrt.x0 = 3; qrt.x1 = 6; //here,point coordidate is located on lef-bottom of the correspoind cell
+	//qrt.y0 = 2; qrt.y1 = 6; //so the right-top coordidate equals cell center + 1
 
-	/*qrt.x0 = 2; qrt.x1 = 5;
-	qrt.y0 = 1; qrt.y1 = 3;*/
+	qrt.x0 = 2; qrt.x1 = 5;
+	qrt.y0 = 1; qrt.y1 = 3;
 
 	///check if the root node contains or eqauls the query rectangle
 	int res = root.spatialrelationship(qrt);
