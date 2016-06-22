@@ -27,14 +27,14 @@ etc...
 typedef unsigned long long U_int;
 
 //for 2d sample
-#define DIM 2 
-#define ORDER  3
-const U_int g_mask[] = { 2, 1 }; //the number is equal to the DIM
+//#define DIM 2 
+//#define ORDER  6
+//const U_int g_mask[] = { 2, 1 }; //the number is equal to the DIM
 
 //for butz's sample
-//#define DIM 5 
-//#define ORDER 4
-//const U_int g_mask[] = { 16, 8, 4, 2, 1 };
+#define DIM 5 
+#define ORDER 6
+const U_int g_mask[] = { 16, 8, 4, 2, 1 };
 
 
 typedef struct {
@@ -315,7 +315,7 @@ void printBits(size_t const size, void const * const ptr)
 int _tmain(int argc, _TCHAR* argv[])
 {
 	Point pt;
-	/*////////////////////////////////
+	////////////////////////////////
 	///Butz's sample
 	pt.cord[0] = 10;//1010
 	pt.cord[1] = 11;//1011
@@ -346,49 +346,62 @@ int _tmain(int argc, _TCHAR* argv[])
 	puts("");
 	////////////////
 	Point pt2 = { 0 };
-	HKey h3 = { 0 };
-	U_int ninput = 624824;
+	HKey h3 = { 0 }; 
+	//U_int ninput = nidx;//624824
 
-	U_int mask = ((U_int)1 << (ORDER + 1)) - 1;
-	for (unsigned int i = 0; i < ORDER; i++)
-	{
-		//nidx |= (h2.hcode[i] << (ORDER - i - 1)*DIM);
-		//printBits(sizeof(U_int), &(h2.hcode[i]));
-		h3.hcode[i] = (ninput >> ((ORDER - i - 1)*DIM)) & mask;
-	}
-	
-	pt2 = H_decode(h3);
+	//U_int mask = ((U_int)1 << (ORDER + 1)) - 1;
+	//for (unsigned int i = 0; i < ORDER; i++)
+	//{
+	//	//nidx |= (h2.hcode[i] << (ORDER - i - 1)*DIM);
+	//	//printBits(sizeof(U_int), &(h2.hcode[i]));
+	//	h3.hcode[i] = (ninput >> ((ORDER - i - 1)*DIM)) & mask;
+	//}
+	//
+	pt2 = H_decode(h2);
 
 	for (unsigned int i = 0; i < DIM; i++)
 	{
 		printBits(sizeof(U_int), &(pt2.cord[i]));
-	}*/
-
-	///////////////////////////////////
-	///2D sample
-	HKey h4 = { 0 };
-	U_int nidx2 = 0;
-	for (unsigned int i = 0; i < 1 << ORDER; i++)
-	{
-		for (unsigned int j = 0; j < 1 << ORDER; j++)
-		{
-			pt.cord[0] = j;
-			pt.cord[1] = i; // x in the lowest part
-			//coord[2] = 3;
-
-			h4 = H_encode(pt);
-
-			/*printf_s("%d %d:  %d\n", i, j,  h4.hcode[0]);*/
-			nidx2 = 0;
-			for (unsigned int p = 0; p < ORDER; p++)
-			{
-				nidx2 |= (h4.hcode[p] << (ORDER - p - 1)*DIM);
-				//printBits(sizeof(U_int), &(h2.hcode[i]));
-			}
-			printf_s("%d %d:  %d\n", i, j, nidx2);
-		}
 	}
 
+	/////////////////////////////////////
+	/////2D sample
+	//HKey h4 = { 0 };
+	//U_int nidx2 = 0;
+
+	//int a, b;
+	//for (unsigned int i = 0; i < 1 << ORDER; i++)
+	//{
+	//	for (unsigned int j = 0; j < 1 << ORDER; j++)
+	//	{
+	//		pt.cord[0] = i;
+	//		pt.cord[1] = j; // x in the lowest part
+	//		//coord[2] = 3;
+
+	//		h4 = H_encode(pt);
+
+	//		/*printf_s("%d %d:  %d\n", i, j,  h4.hcode[0]);*/
+	//		nidx2 = 0;
+	//		HKey h5 = h4;
+
+	//		for (unsigned int p = 0; p < ORDER; p++)
+	//		{
+	//			nidx2 |= (h5.hcode[p] << (ORDER - p - 1)*DIM);
+	//			//printBits(sizeof(U_int), &(h2.hcode[i]));
+	//		}
+	//		printf_s("%d %d:  %d-----", i, j, nidx2);
+
+	//		Point pt2 = H_decode(h4);
+
+	//		a = pt2.cord[0];
+	//		b = pt2.cord[1];
+
+	//		printf_s("%d , %d \n", a,b);
+
+	//	}
+	//}
+
+	
 	return 0;
 }
 

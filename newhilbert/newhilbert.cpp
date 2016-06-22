@@ -32,22 +32,25 @@ void printBits(size_t const size, void const * const ptr)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	bitmask_t coord[3];
-	uint64_t code = 0;
-		
-	/*for (unsigned int i = 0; i < 8; i++)
+	bitmask_t coord[2];
+	bitmask_t code = 0;	
+
+	for (unsigned int i = 0; i < 16; i++)
 	{
-		for (unsigned int j = 0; j < 8; j++)
+		for (unsigned int j = 0; j < 16; j++)
 		{
 			coord[0] = i;
 			coord[1] = j;
 			//coord[2] = 3;
 
-			code = hilbert_c2i(2, 3, coord);
+			code = hilbert_c2i(2, 4, coord);
 
-			cout << i << "," << j << "-----" << code << endl;
+			bitmask_t coord4[2];
+			hilbert_i2c(2, 4, code, coord4);
+
+			cout << i << "," << j << "----->" << code << "----->" << coord4[0] << "," << coord4[1] << endl;
 		}
-	}*/
+	}
 
 	bitmask_t coord2[5];
 	
@@ -57,20 +60,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	coord2[3] = 11;//1011
 	coord2[4] = 10;//1010
 
-	code = hilbert_c2i(5, 4, coord2);
+	code = hilbert_c2i(5, 40, coord2);
 	cout << "index : " << code << endl;
 
 	for(unsigned int i = 0; i < 5; i++)
 		coord2[i] = 0;//0101
 
-	hilbert_i2c(5, 4, 624824, coord2);
-	code = 624824;
-	printBits(sizeof(bitmask_t), &code);
+	bitmask_t coord3[5];
+
+	hilbert_i2c(5, 40, code, coord3);
+	//code = 624824;
+	//printBits(sizeof(bitmask_t), &code);
 	cout << endl;
 	for (unsigned int i = 0; i < 5; i++)
 	{
-		printBits(sizeof(bitmask_t), &coord2[i]);
-		cout << endl;
+		//printBits(sizeof(bitmask_t), &coord2[i]);
+		cout << ", " << coord3[i]  << endl;
 	}
 		
 

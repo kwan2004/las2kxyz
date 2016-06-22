@@ -201,7 +201,7 @@ Point H_decode(HKey H)
 /* For mapping from DIM dimensions to one dimension */
 HKey H_encode(Point pt)
 {
-	U_int mask = (U_int)1 << ORDER - 1, element,
+	U_int mask = (U_int)1 << (ORDER - 1), element,
 		A, W = 0, S, tS, T, tT, J, P = 0, xJ;
 	HKey h = { 0 };
 	int i = ORDER * DIM - DIM, j;

@@ -30,7 +30,7 @@
 #define adjust_rotation(rotation,nDims,bits)                            \
 do {                                                                    \
       /* rotation = (rotation + 1 + ffs(bits)) % nDims; */              \
-      bits &= -bits & nd1Ones;                                          \
+      bits &= bits & nd1Ones;                                          \
 	  	        while (bits)                                                      \
         bits >>= 1, ++rotation;                                         \
       if ( ++rotation >= nDims )                                        \
@@ -222,7 +222,7 @@ hilbert_c2i(unsigned nDims, unsigned nBits, bitmask_t const coord[])
 			do
 			{
 				halfmask_t bits = halfmask_t((coords >> (b -= nDims)) & ndOnes);
-				bits = rotateRight(flipBit ^ bits, rotation, nDims);
+				bits = halfmask_t(rotateRight(flipBit ^ bits, rotation, nDims));
 				index <<= nDims;
 				index |= bits;
 				flipBit = (halfmask_t)1 << rotation;
